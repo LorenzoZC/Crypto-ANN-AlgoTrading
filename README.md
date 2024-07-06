@@ -13,36 +13,36 @@ Performance Metrics: Calculation of Sharpe Ratio, Sortino Ratio, Value at Risk (
 Visualization: Comprehensive visualizations using Matplotlib, Seaborn, and Plotly for analyzing trading performance and model predictions.
 Modular Structure: Well-organized project structure for easy maintenance and scalability.
 
-│
-├── data/
-│   ├── historical/             # Historical data files
-│   ├── processed/              # Processed data files
-│
-├── models/
-│   ├── saved_models/           # Saved machine learning models
-│   ├── training_scripts/       # Scripts for training machine learning models
-│
-├── notebooks/
-│   ├── data_exploration.ipynb  # Jupyter notebook for data exploration
-│   ├── model_training.ipynb    # Jupyter notebook for training models
-│   ├── backtesting.ipynb       # Jupyter notebook for backtesting strategies
-│
-├── strategies/
-│   ├── __init__.py             # Initialization script for strategy package
-│   ├── base_strategy.py        # Base strategy class with common functionality
-│   ├── bitcoin_strategy.py     # Bitcoin trading strategy implementation
-│   ├── custom_indicators.py    # Custom technical indicators
-│
-├── utils/
-│   ├── data_fetcher.py         # Utility script for fetching data from APIs
-│   ├── data_preprocessor.py    # Utility script for data preprocessing
-│   ├── logger.py               # Custom logging functionality
-│
-├── main.py                     # Main script for running the trading strategy
-├── requirements.txt            # List of required Python packages
-├── README.md                   # Project description and setup instructions
-├── .gitignore                  # Git ignore file
-└── LICENSE                     # Project license
+│  
+├── data/  
+│   ├── historical/             # Historical data files  
+│   ├── processed/              # Processed data files  
+│  
+├── models/  
+│   ├── saved_models/           # Saved machine learning models  
+│   ├── training_scripts/       # Scripts for training machine learning models  
+│  
+├── notebooks/  
+│   ├── data_exploration.ipynb  # Jupyter notebook for data exploration  
+│   ├── model_training.ipynb    # Jupyter notebook for training models  
+│   ├── backtesting.ipynb       # Jupyter notebook for backtesting strategies  
+│  
+├── strategies/  
+│   ├── __init__.py             # Initialization script for strategy package  
+│   ├── base_strategy.py        # Base strategy class with common functionality  
+│   ├── bitcoin_strategy.py     # Bitcoin trading strategy implementation  
+│   ├── custom_indicators.py    # Custom technical indicators  
+│  
+├── utils/  
+│   ├── data_fetcher.py         # Utility script for fetching data from APIs  
+│   ├── data_preprocessor.py    # Utility script for data preprocessing  
+│   ├── logger.py               # Custom logging functionality  
+│  
+├── main.py                     # Main script for running the trading strategy  
+├── requirements.txt            # List of required Python packages  
+├── README.md                   # Project description and setup instructions  
+├── .gitignore                  # Git ignore file  
+└── LICENSE                     # Project license  
 
 Setup Instructions
 Clone the repository:
