@@ -11,6 +11,8 @@ from utils.data_fetcher import fetch_and_save_data
 from utils.data_preprocessor import preprocess_data
 from utils.logger import setup_logger
 
+is_cv = False
+
 ##################
 
 def run_strategy():
@@ -31,10 +33,16 @@ def run_strategy():
 
         # Preprocess data
         X_train, X_test, y_train, y_test = preprocess_data(data)
+        
+        lstm_X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+        lstm_X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
-        # pass X y train test to modelling
-        train_models(X_train, X_test, y_train, y_test)
-        # output should be clean_df
+        model_trainer = ModelTrainer(is_cv=False)
+        clean_df = model_trainer.train_models(X_train, X_test, y_train, y_test)
+
+        output_path = os.path.join(os.path.dirname(__file__), 'models', 'saved_results', 'clean_df.csv')
+        clean_df.to_csv(output_path)
+        print(f"Cleaned data saved to {output_path}")
 
         # Set up Cerebro engine
         cerebro = bt.Cerebro()
