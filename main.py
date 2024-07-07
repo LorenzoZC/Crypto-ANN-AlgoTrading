@@ -27,6 +27,9 @@ def run_strategy():
         data['Close'] = data['Close'].astype(float)
         data = data.dropna(subset=['Close'])
 
+        # Preprocess data
+        X_train, X_test, y_train, y_test = preprocess_data(data)
+
         # Set up Cerebro engine
         cerebro = bt.Cerebro()
         cerebro.addstrategy(ML_Signal)
