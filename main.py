@@ -47,3 +47,41 @@ strat = results[0]
 
 # Print the final result
 print('\nFinal Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+##################
+
+import backtrader as bt
+from strategies.ml_signal_strategy import ML_Signal
+from utils.data_fetcher import fetch_data
+from utils.data_preprocessor import preprocess_data
+from utils.logger import setup_logger
+
+def run_strategy():
+    # Fetch and preprocess data
+    raw_data = fetch_data()
+    data = preprocess_data(raw_data)
+
+    # Set up Cerebro engine
+    cerebro = bt.Cerebro()
+    cerebro.addstrategy(ML_Signal)
+
+    # Add data to Cerebro
+    data_feed = bt.feeds.PandasData(dataname=data)
+    cerebro.adddata(data_feed)
+
+    # Set initial capital
+    cerebro.broker.set_cash(100000.0)
+
+    # Set commission
+    cerebro.broker.setcommission(commission=0.001)
+
+    # Run strategy
+    results = cerebro.run()
+
+    # Log final results
+    final_value = cerebro.broker.getvalue()
+    logger = setup_logger()
+    logger.info(f'Final Portfolio Value: {final_value:.2f}')
+
+if __name__ == '__main__':
+    run_strategy()
