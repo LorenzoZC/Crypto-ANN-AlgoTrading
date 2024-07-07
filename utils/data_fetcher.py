@@ -44,6 +44,10 @@ def fetch_and_save_data(ticker_list, interval='1h', start='1 Jan 2018', end='30 
     os.makedirs(raw_data_dir, exist_ok=True)
 
     for ticker, df in coin_dataframes.items():
+        df['OpenTime'] = pd.to_datetime(df['OpenTime'], unit='ms')
+        df['CloseTime'] = pd.to_datetime(df['CloseTime'], unit='ms')
+        df['Close'] = df['Close'].astype(float)
+        df = df.dropna(subset=['Close'])
         df.to_csv(os.path.join(raw_data_dir, f'{ticker}.csv'), index=False)
 
     return coin_dataframes
