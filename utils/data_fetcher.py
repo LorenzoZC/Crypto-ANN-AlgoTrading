@@ -47,9 +47,3 @@ def fetch_and_save_data(ticker_list, interval='1h', start='1 Jan 2018', end='30 
         df.to_csv(os.path.join(raw_data_dir, f'{ticker}.csv'), index=False)
 
     return coin_dataframes
-
-# Example usage
-if __name__ == '__main__':
-    ticker_list = ['BTCUSDT']
-    fetch_and_save_data(ticker_list)
-
