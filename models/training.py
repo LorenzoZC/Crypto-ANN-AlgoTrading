@@ -252,33 +252,33 @@ def performance_metric(threshold, y_predict):
 
     # 1.calculate ROC curve
     fpr, tpr, thresholds = roc_curve(y_test, y_pre)
-    print("Thresholds: {}".format(thresholds),
-         "fpr: {}".format(fpr),
-         "tpr: {}".format(tpr))
+    # print("Thresholds: {}".format(thresholds),
+    #      "fpr: {}".format(fpr),
+    #      "tpr: {}".format(tpr))
 
     # 2.calculate confusion matrix
     con_mx = confusion_matrix(y_test, y_pre)
-    print("Confusion Matrix:\n{}".format(con_mx))
+    # print("Confusion Matrix:\n{}".format(con_mx))
 
     # 3.calculate f1
     f1_sco = f1_score(y_test, y_pre, labels = None, pos_label = 1)
-    print("F1 Score: {}".format(f1_sco))
+    # print("F1 Score: {}".format(f1_sco))
 
     # 4.calculate accuracy
     acc_score = accuracy_score(y_test, y_pre, normalize = True) 
-    print("Accuracy Score: {}".format(acc_score))
+    # print("Accuracy Score: {}".format(acc_score))
 
     # 5.calculate precision_score
     pre_score = precision_score(y_test, y_pre, average = 'weighted')
-    print("Precision Score: {}".format(pre_score))
+    # print("Precision Score: {}".format(pre_score))
 
     # 6.calculate recall score
     rec_score = recall_score(y_test, y_pre)
-    print("Recall Score: {}".format(rec_score))
+    # print("Recall Score: {}".format(rec_score))
 
     # 7.calculate auc score
     auc_score = auc(fpr, tpr)
-    print("AUC Score: {}".format(auc_score))
+    # print("AUC Score: {}".format(auc_score))
 
     return fpr, tpr, auc_score, f1_sco
 
@@ -294,7 +294,7 @@ best_y_pred = None
 best_model = None
 
 for name, y in predictions_dict.items():
-    print('Model: %s' %name )
+    # print('Model: %s' %name )
     fpr, tpr, auc_score, f1_sco = performance_metric(0.5, y) # set threshold = 0.5
     fpr_lst.append(fpr)
     tpr_lst.append(tpr)
@@ -307,7 +307,7 @@ for name, y in predictions_dict.items():
         best_model_name = name
         best_y_pred = y # best_model_name.lower() + "_y_pred"
 
-    print()
+    # print()
     
 if best_y_pred.ndim == 2 and best_y_pred.shape[1] == 1:
     best_y_pred = best_y_pred.ravel()
