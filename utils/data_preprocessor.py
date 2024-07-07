@@ -102,3 +102,38 @@ X_test= x_scaler.transform(X_test)
 
 # Combine X_train_scaled and X_test_scaled for VIF calculation
 X_scaled_combined = np.vstack((X_train, X_test))
+
+# Calculate VIF for all features
+    vif_data = pd.DataFrame()
+    vif_data["feature"] = X.columns
+    vif_data["VIF"] = [variance_inflation_factor(X_scaled_combined, i) for i in range(X.shape[1])]
+
+    # Drop features with VIF > 10
+    high_vif_features = vif_data[vif_data['VIF'] > 10]['feature']
+    X_reduced = X.drop(columns=high_vif_features)
+
+    # Recalculate VIF for the reduced feature set
+    vif_data_reduced = pd.DataFrame()
+    vif_data_reduced["feature"] = X_reduced.columns
+    vif_data_reduced["VIF"] = [variance_inflation_factor(X_reduced.values, i) for i in range(len(X_reduced.columns))]
+
+    high_vif_features = vif_data[vif_data['VIF'] > 10]['feature'].tolist()
+
+    # Drop collinear features and train the model accordingly
+    X = X.drop(columns=[col for col in high_vif_features if col in X.columns], errors='ignore')
+
+    # Split the cleaned data into training and testing sets again
+    X_train, X_test, y_train, y_test = X[:split], X[split:], y[:split], y[split:]
+
+    # Normalize the cleaned data
+    X_train = x_scaler.fit_transform(X_train)
+    X_test = x_scaler.transform(X_test)
+
+    return X_train, X_test, y_train, y_test
+
+# Example usage
+if __name__ == '__main__':
+    # Load data from raw data folder for a specific coin (e.g., BTCUSDT)
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'BTCUSDT.csv'))
+    X_train, X_test, y_train, y_test = preprocess_data(data)
+    print("Preprocessing complete.")
