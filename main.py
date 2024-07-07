@@ -32,6 +32,10 @@ def run_strategy():
         # Preprocess data
         X_train, X_test, y_train, y_test = preprocess_data(data)
 
+        # pass X y train test to modelling
+        train_models(X_train, X_test, y_train, y_test)
+        # output should be clean_df
+
         # Set up Cerebro engine
         cerebro = bt.Cerebro()
         cerebro.addstrategy(ML_Signal)
