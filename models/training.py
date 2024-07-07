@@ -350,3 +350,25 @@ for col in clean_df.columns:
         
 scaler = MinMaxScaler()
 clean_df.loc[:, 'openinterest'] = scaler.fit_transform(clean_df[['openinterest']])
+
+df = pd.DataFrame(index = data['OpenTime']) 
+df['Open'] = data['Open'].values      
+df['High'] = data['High'].values      
+df['Low'] = data['Low'].values
+df['Close'] = data['Close'].values
+df['Volume'] = data['Volume'].values
+df['openinterest'] = data['best_y_pred'].values
+
+# Clean
+
+clean_df = df[np.isfinite(df['openinterest'])]
+clean_df.index = pd.to_datetime(clean_df.index, unit='s')
+clean_df.index = clean_df.index.tz_localize('UTC')
+
+# Ensure all other columns are numeric
+for col in clean_df.columns:
+    if col != 'Open':
+        clean_df.loc[:, col] = pd.to_numeric(clean_df[col])
+        
+scaler = MinMaxScaler()
+clean_df.loc[:, 'openinterest'] = scaler.fit_transform(clean_df[['openinterest']])
