@@ -89,7 +89,6 @@ split = int(len(data) * 0.5)
 X_train, X_test, y_train, y_test = X[:split], X[split:], y[:split], y[split:]
 
 test_start_date = data['OpenTime'].iloc[split].date().strftime('%Y-%m-%d')
-print(f"Test set starts on: {test_start_date}")
 
 # normalize the data 
 x_scaler = StandardScaler()
@@ -104,32 +103,32 @@ X_test= x_scaler.transform(X_test)
 X_scaled_combined = np.vstack((X_train, X_test))
 
 # Calculate VIF for all features
-    vif_data = pd.DataFrame()
-    vif_data["feature"] = X.columns
-    vif_data["VIF"] = [variance_inflation_factor(X_scaled_combined, i) for i in range(X.shape[1])]
+vif_data = pd.DataFrame()
+vif_data["feature"] = X.columns
+vif_data["VIF"] = [variance_inflation_factor(X_scaled_combined, i) for i in range(X.shape[1])]
 
-    # Drop features with VIF > 10
-    high_vif_features = vif_data[vif_data['VIF'] > 10]['feature']
-    X_reduced = X.drop(columns=high_vif_features)
+# Drop features with VIF > 10
+high_vif_features = vif_data[vif_data['VIF'] > 10]['feature']
+X_reduced = X.drop(columns=high_vif_features)
 
-    # Recalculate VIF for the reduced feature set
-    vif_data_reduced = pd.DataFrame()
-    vif_data_reduced["feature"] = X_reduced.columns
-    vif_data_reduced["VIF"] = [variance_inflation_factor(X_reduced.values, i) for i in range(len(X_reduced.columns))]
+# Recalculate VIF for the reduced feature set
+vif_data_reduced = pd.DataFrame()
+vif_data_reduced["feature"] = X_reduced.columns
+vif_data_reduced["VIF"] = [variance_inflation_factor(X_reduced.values, i) for i in range(len(X_reduced.columns))]
 
-    high_vif_features = vif_data[vif_data['VIF'] > 10]['feature'].tolist()
+high_vif_features = vif_data[vif_data['VIF'] > 10]['feature'].tolist()
 
-    # Drop collinear features and train the model accordingly
-    X = X.drop(columns=[col for col in high_vif_features if col in X.columns], errors='ignore')
+# Drop collinear features and train the model accordingly
+X = X.drop(columns=[col for col in high_vif_features if col in X.columns], errors='ignore')
 
-    # Split the cleaned data into training and testing sets again
-    X_train, X_test, y_train, y_test = X[:split], X[split:], y[:split], y[split:]
+# Split the cleaned data into training and testing sets again
+X_train, X_test, y_train, y_test = X[:split], X[split:], y[:split], y[split:]
 
-    # Normalize the cleaned data
-    X_train = x_scaler.fit_transform(X_train)
-    X_test = x_scaler.transform(X_test)
+# Normalize the cleaned data
+X_train = x_scaler.fit_transform(X_train)
+X_test = x_scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test
+return X_train, X_test, y_train, y_test
 
 # Example usage
 if __name__ == '__main__':
