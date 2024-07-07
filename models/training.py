@@ -29,76 +29,76 @@ def ANN_feed_forward():
     model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
     return model
 
-early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-
-if not is_cv:
-    ann = ANN_feed_forward()
-    ann.fit(X_train, y_train, batch_size=10, epochs=50)
-
-    # Predict and evaluate the ANN model
-    ann_pred = ann.predict(X_test)
-    ann_pred = (ann_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
-    ann_acc = accuracy_score(y_test, ann_pred)
-    ann_f1 = f1_score(y_test, ann_pred)
-    ann_roc_auc = roc_auc_score(y_test, ann_pred)
-
-    print(f"ANN - Accuracy: {ann_acc:.4f}, F1 Score: {ann_f1:.4f}, ROC AUC: {ann_roc_auc:.4f}")
-    score = ann.evaluate(X_test, y_test, batch_size = 10)
-    print('\nTest loss:', score[0])
-    print('Test accuracy:', score[1]) 
-
-    # # Plot the ROC curve for ANN
-    # fpr, tpr, _ = roc_curve(y_test, ann_pred)
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(fpr, tpr, color='blue', lw=2, label='ANN (AUC = %0.2f)' % ann_roc_auc)
-    # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    # plt.xlabel('False Positive Rate')
-    # plt.ylabel('True Positive Rate')
-    # plt.title('Receiver Operating Characteristic - ANN')
-    # plt.legend(loc="lower right")
-    # plt.show()
-else:
-    ann = ANN_feed_forward()
-    ann_param_grid = {
-        'batch_size': [10, 20],
-        'epochs': [10, 50],
-        'optimizer': ['adam'],
-        'units1': [500, 1000],
-        'units2': [250, 500],
-        'units3': [125, 250],
-        'units4': [60, 125],
-        'units5': [35, 75]
-    }
-
-    ann_random_search = RandomizedSearchCV(estimator=ann, param_distributions=ann_param_grid, n_iter=5, cv=3, verbose=2, random_state=42, n_jobs=-1)
-    ann_random_search.fit(X_train, y_train, callbacks=[early_stopping])
-
-    print("Best parameters found for ANN: ", ann_random_search.best_params_)
-    print("Best accuracy found for ANN: ", ann_random_search.best_score_)
-
-    # Evaluate the best ANN model
-    best_ann_model = ann_random_search.best_estimator_
-    ann_pred = best_ann_model.predict(X_test)
-    ann_pred = (ann_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
-    ann_acc = accuracy_score(y_test, ann_pred)
-    ann_f1 = f1_score(y_test, ann_pred)
-    ann_roc_auc = roc_auc_score(y_test, ann_pred)
-
-    print(f"ANN - Accuracy: {ann_acc:.4f}, F1 Score: {ann_f1:.4f}, ROC AUC: {ann_roc_auc:.4f}")
-    score = ann.evaluate(X_test, y_test, batch_size = 10)
-    print('\nTest loss:', score[0])
-    print('Test accuracy:', score[1]) 
-
-    # # Plot the ROC curve for ANN
-    # fpr, tpr, _ = roc_curve(y_test, ann_pred)
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(fpr, tpr, color='blue', lw=2, label='ANN (AUC = %0.2f)' % ann_roc_auc)
-    # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    # plt.xlabel('False Positive Rate')
-    # plt.ylabel('True Positive Rate')
-    # plt.title('Receiver Operating Characteristic - ANN')
-    # plt.legend(loc="lower right")
-    # plt.show()
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    
+    if not is_cv:
+        ann = ANN_feed_forward()
+        ann.fit(X_train, y_train, batch_size=10, epochs=50)
+    
+        # Predict and evaluate the ANN model
+        ann_pred = ann.predict(X_test)
+        ann_pred = (ann_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
+        ann_acc = accuracy_score(y_test, ann_pred)
+        ann_f1 = f1_score(y_test, ann_pred)
+        ann_roc_auc = roc_auc_score(y_test, ann_pred)
+    
+        print(f"ANN - Accuracy: {ann_acc:.4f}, F1 Score: {ann_f1:.4f}, ROC AUC: {ann_roc_auc:.4f}")
+        score = ann.evaluate(X_test, y_test, batch_size = 10)
+        print('\nTest loss:', score[0])
+        print('Test accuracy:', score[1]) 
+    
+        # # Plot the ROC curve for ANN
+        # fpr, tpr, _ = roc_curve(y_test, ann_pred)
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(fpr, tpr, color='blue', lw=2, label='ANN (AUC = %0.2f)' % ann_roc_auc)
+        # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        # plt.xlabel('False Positive Rate')
+        # plt.ylabel('True Positive Rate')
+        # plt.title('Receiver Operating Characteristic - ANN')
+        # plt.legend(loc="lower right")
+        # plt.show()
+    else:
+        ann = ANN_feed_forward()
+        ann_param_grid = {
+            'batch_size': [10, 20],
+            'epochs': [10, 50],
+            'optimizer': ['adam'],
+            'units1': [500, 1000],
+            'units2': [250, 500],
+            'units3': [125, 250],
+            'units4': [60, 125],
+            'units5': [35, 75]
+        }
+    
+        ann_random_search = RandomizedSearchCV(estimator=ann, param_distributions=ann_param_grid, n_iter=5, cv=3, verbose=2, random_state=42, n_jobs=-1)
+        ann_random_search.fit(X_train, y_train, callbacks=[early_stopping])
+    
+        print("Best parameters found for ANN: ", ann_random_search.best_params_)
+        print("Best accuracy found for ANN: ", ann_random_search.best_score_)
+    
+        # Evaluate the best ANN model
+        best_ann_model = ann_random_search.best_estimator_
+        ann_pred = best_ann_model.predict(X_test)
+        ann_pred = (ann_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
+        ann_acc = accuracy_score(y_test, ann_pred)
+        ann_f1 = f1_score(y_test, ann_pred)
+        ann_roc_auc = roc_auc_score(y_test, ann_pred)
+    
+        print(f"ANN - Accuracy: {ann_acc:.4f}, F1 Score: {ann_f1:.4f}, ROC AUC: {ann_roc_auc:.4f}")
+        score = ann.evaluate(X_test, y_test, batch_size = 10)
+        print('\nTest loss:', score[0])
+        print('Test accuracy:', score[1]) 
+    
+        # # Plot the ROC curve for ANN
+        # fpr, tpr, _ = roc_curve(y_test, ann_pred)
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(fpr, tpr, color='blue', lw=2, label='ANN (AUC = %0.2f)' % ann_roc_auc)
+        # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        # plt.xlabel('False Positive Rate')
+        # plt.ylabel('True Positive Rate')
+        # plt.title('Receiver Operating Characteristic - ANN')
+        # plt.legend(loc="lower right")
+        # plt.show()
 
 # reshape input to be [samples, time steps, features]
 lstm_X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
@@ -114,71 +114,71 @@ def create_lstm(hidden_size=32, optimizer='adam'):
     model.compile(loss='mean_squared_error', metrics=['accuracy'], optimizer=optimizer)
     return model
 
-early_stopping = EarlyStopping(monitor='loss', patience=10, restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='loss', patience=10, restore_best_weights=True)
+    
+    if not is_cv:
+        lstm = create_lstm()
+        lstm.fit(lstm_X_train, y_train, epochs=50, batch_size=32, callbacks=[early_stopping])
+    
+        # Predict and evaluate the LSTM model
+        lstm_pred = lstm.predict(lstm_X_test)
+        lstm_pred = (lstm_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
+        lstm_acc = accuracy_score(y_test, lstm_pred)
+        lstm_f1 = f1_score(y_test, lstm_pred)
+        lstm_roc_auc = roc_auc_score(y_test, lstm_pred)
+    
+        print(f"LSTM - Accuracy: {lstm_acc:.4f}, F1 Score: {lstm_f1:.4f}, ROC AUC: {lstm_roc_auc:.4f}")
+        score = lstm.evaluate(lstm_X_test, y_test, batch_size=32)
+        print('\nTest loss:', score[0])
+        print('Test accuracy:', score[1])
+    
+        # # Plot the ROC curve for LSTM
+        # fpr, tpr, _ = roc_curve(y_test, lstm_pred)
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(fpr, tpr, color='blue', lw=2, label='LSTM (AUC = %0.2f)' % lstm_roc_auc)
+        # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        # plt.xlabel('False Positive Rate')
+        # plt.ylabel('True Positive Rate')
+        # plt.title('Receiver Operating Characteristic - LSTM')
+        # plt.legend(loc="lower right")
+        # plt.show()
+    else:
+        lstm = create_lstm()
+        lstm_param_grid = {
+            'batch_size': [10, 20, 32],
+            'epochs': [10, 50, 100],
+            'optimizer': ['adam', 'rmsprop'],
+            'hidden_size': [16, 32, 64]
+        }
+    
+        lstm_random_search = RandomizedSearchCV(estimator=lstm, param_distributions=lstm_param_grid, n_iter=5, cv=3, verbose=2, random_state=42, n_jobs=-1)
+        lstm_random_search.fit(lstm_X_train, y_train, callbacks=[early_stopping])
+    
+        print("Best parameters found for LSTM: ", lstm_random_search.best_params_)
+        print("Best accuracy found for LSTM: ", lstm_random_search.best_score_)
 
-if not is_cv:
-    lstm = create_lstm()
-    lstm.fit(lstm_X_train, y_train, epochs=50, batch_size=32, callbacks=[early_stopping])
-
-    # Predict and evaluate the LSTM model
-    lstm_pred = lstm.predict(lstm_X_test)
-    lstm_pred = (lstm_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
-    lstm_acc = accuracy_score(y_test, lstm_pred)
-    lstm_f1 = f1_score(y_test, lstm_pred)
-    lstm_roc_auc = roc_auc_score(y_test, lstm_pred)
-
-    print(f"LSTM - Accuracy: {lstm_acc:.4f}, F1 Score: {lstm_f1:.4f}, ROC AUC: {lstm_roc_auc:.4f}")
-    score = lstm.evaluate(lstm_X_test, y_test, batch_size=32)
-    print('\nTest loss:', score[0])
-    print('Test accuracy:', score[1])
-
-    # # Plot the ROC curve for LSTM
-    # fpr, tpr, _ = roc_curve(y_test, lstm_pred)
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(fpr, tpr, color='blue', lw=2, label='LSTM (AUC = %0.2f)' % lstm_roc_auc)
-    # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    # plt.xlabel('False Positive Rate')
-    # plt.ylabel('True Positive Rate')
-    # plt.title('Receiver Operating Characteristic - LSTM')
-    # plt.legend(loc="lower right")
-    # plt.show()
-else:
-    lstm = create_lstm()
-    lstm_param_grid = {
-        'batch_size': [10, 20, 32],
-        'epochs': [10, 50, 100],
-        'optimizer': ['adam', 'rmsprop'],
-        'hidden_size': [16, 32, 64]
-    }
-
-    lstm_random_search = RandomizedSearchCV(estimator=lstm, param_distributions=lstm_param_grid, n_iter=5, cv=3, verbose=2, random_state=42, n_jobs=-1)
-    lstm_random_search.fit(lstm_X_train, y_train, callbacks=[early_stopping])
-
-    print("Best parameters found for LSTM: ", lstm_random_search.best_params_)
-    print("Best accuracy found for LSTM: ", lstm_random_search.best_score_)
-
-    # Evaluate the best LSTM model
-    best_lstm_model = lstm_random_search.best_estimator_
-    lstm_pred = best_lstm_model.predict(lstm_X_test)
-    lstm_pred = (lstm_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
-    lstm_acc = accuracy_score(y_test, lstm_pred)
-    lstm_f1 = f1_score(y_test, lstm_pred)
-    lstm_roc_auc = roc_auc_score(y_test, lstm_pred)
-
-    print(f"LSTM - Accuracy: {lstm_acc:.4f}, F1 Score: {lstm_f1:.4f}, ROC AUC: {lstm_roc_auc:.4f}")
-    print('\nTest loss:', score[0])
-    print('Test accuracy:', score[1])
-
-    # # Plot the ROC curve for LSTM
-    # fpr, tpr, _ = roc_curve(y_test, lstm_pred)
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(fpr, tpr, color='blue', lw=2, label='LSTM (AUC = %0.2f)' % lstm_roc_auc)
-    # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    # plt.xlabel('False Positive Rate')
-    # plt.ylabel('True Positive Rate')
-    # plt.title('Receiver Operating Characteristic - LSTM')
-    # plt.legend(loc="lower right")
-    # plt.show()
+        # Evaluate the best LSTM model
+        best_lstm_model = lstm_random_search.best_estimator_
+        lstm_pred = best_lstm_model.predict(lstm_X_test)
+        lstm_pred = (lstm_pred >= 0.5).astype(int)  # Convert probabilities to binary outcomes
+        lstm_acc = accuracy_score(y_test, lstm_pred)
+        lstm_f1 = f1_score(y_test, lstm_pred)
+        lstm_roc_auc = roc_auc_score(y_test, lstm_pred)
+    
+        print(f"LSTM - Accuracy: {lstm_acc:.4f}, F1 Score: {lstm_f1:.4f}, ROC AUC: {lstm_roc_auc:.4f}")
+        print('\nTest loss:', score[0])
+        print('Test accuracy:', score[1])
+    
+        # # Plot the ROC curve for LSTM
+        # fpr, tpr, _ = roc_curve(y_test, lstm_pred)
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(fpr, tpr, color='blue', lw=2, label='LSTM (AUC = %0.2f)' % lstm_roc_auc)
+        # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        # plt.xlabel('False Positive Rate')
+        # plt.ylabel('True Positive Rate')
+        # plt.title('Receiver Operating Characteristic - LSTM')
+        # plt.legend(loc="lower right")
+        # plt.show()
 
 #. Support vector Machine Model
 svc = SVC(kernel = 'rbf', probability = True)  # Radial Basis Function Kernel, sigmoid: which is suitable for binary classification
