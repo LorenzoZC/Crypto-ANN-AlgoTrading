@@ -1,3 +1,11 @@
+is_cv = False
+
+allocation = 0.99
+threshold = 0.5
+
+# Logging
+printlog = False
+
 import backtrader as bt
 import pandas as pd
 import pytz
@@ -11,13 +19,6 @@ from utils.data_fetcher import fetch_and_save_data
 from utils.data_preprocessor import preprocess_data
 from utils.logger import setup_logger
 
-is_cv = False
-
-allocation = 0.99
-threshold = 0.5
-
-# Logging
-printlog = False
 startdate = datetime(2021, 4, 6)
 enddate = datetime(2024, 1, 1)
 
