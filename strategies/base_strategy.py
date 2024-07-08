@@ -1,5 +1,14 @@
 import backtrader as bt
 from datetime import datetime, timedelta
+is_cv = False
+
+allocation = 0.99
+threshold = 0.5
+
+# Logging
+printlog = False
+startdate = datetime(2021, 4, 6)
+enddate = datetime(2024, 1, 1)
 
 class ML_Signal(bt.Strategy):
     
