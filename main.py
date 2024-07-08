@@ -10,6 +10,7 @@ from analyzers.commission_analyzer import CommissionAnalyzer
 from utils.data_fetcher import fetch_and_save_data
 from utils.data_preprocessor import preprocess_data
 from utils.logger import setup_logger
+from utils.performance_metrics import *
 
 is_cv = False
 
@@ -21,6 +22,8 @@ printlog = False
 startdate = datetime(2021, 4, 6)
 enddate = datetime(2024, 1, 1)
 
+coin = 'BTC'
+
 ##################
 
 def run_strategy():
@@ -29,7 +32,7 @@ def run_strategy():
     coin_dataframes = fetch_and_save_data(ticker_list)
     
     # Process data for a specific coin (e.g., BTC)
-    coin = 'BTC'
+    coin = coin
     data = coin_dataframes.get(f'{coin}USDT')
     
     if data is not None:
@@ -54,98 +57,26 @@ def run_strategy():
 
         #############################################################################################
         
-        class CommissionSlippageLeverage(bt.CommInfoBase):
-            params = (
-                ('base_slippage', 0.05),
-                ('max_slippage', 0.5),
-                ('volatility_threshold', 0.30),
-                ('commission', 0.1),
-                ('leverage', 1.0),
-                ('leverage_cost_daily', 0.0002),  # Daily leverage cost rate
-            )
-        
-            def __init__(self):
-                super().__init__()
-        
-            def get_slippage(self, size, price, data):
-                returns = np.diff(np.log(data.close.get(size=20)))
-                if len(returns) <= 1:
-                    return self.params.base_slippage
-                volatility = np.std(returns)
-                if volatility <= self.params.volatility_threshold:
-                    slippage = self.params.base_slippage
-                else:
-                    # Ratio of how much volatility exceeds the threshold
-                    excess_ratio = (volatility - self.params.volatility_threshold) / (self.params.max_slippage - self.params.volatility_threshold)
-                    # Ensure the ratio does not exceed 1
-                    excess_ratio = min(excess_ratio, 1.0)
-                    # Interpolate between base slippage and max slippage based on the excess ratio
-                    slippage = self.params.base_slippage + excess_ratio * (self.params.max_slippage - self.params.base_slippage)
-                return slippage
-        
-            def getoperationcost(self, size, price, data):
-                slippage = self.get_slippage(data)
-                slippage_cost = size * price * slippage
-                commission_cost = size * price * self.params.commission
-        
-                # Daily leverage cost calculation
-                leverage_cost = size * price * self.params.leverage_cost_daily if self.params.leverage > 1 else 0
-        
-                total_cost = slippage_cost + commission_cost + leverage_cost
-                return total_cost
-            
-        class PortfolioSizer(bt.Sizer):
-            params = (
-                ('allocation', allocation),  
-            )
-        
-            # def _getsizing(self, comminfo, cash, data, isbuy):
-            #     if isbuy:
-            #         size = int((cash * self.params.allocation) / data.close[0])
-            #     else:
-            #         size = self.broker.getposition(data).size
-            #     return size
-            
-            def _getsizing(self, comminfo, cash, data, isbuy):
-                size = int((cash * self.params.allocation) / data.close[0])
-                return size
-            
-        class CommissionAnalyzer(bt.Analyzer):
-            def __init__(self):
-                self.total_commission = 0
-        
-            def notify_trade(self, trade):
-                if trade.isclosed:
-                    self.total_commission += trade.commission
-        
-            def get_analysis(self):
-                return {
-                    'total_commission': self.total_commission
-                }
-        
         cerebro = bt.Cerebro(cheat_on_open=True) #
         cerebro.addstrategy(ML_Signal, printlog=printlog, startdate=startdate, enddate=enddate)
-        
-        data_bt = bt.feeds.PandasDirectData(dataname=clean_df)
+
+        data_bt = bt.feeds.PandasDirectData(dataname=clean_df, fromdate=startdate, todate=enddate)
         cerebro.adddata(data_bt)
-        
+
         starting_cash = 100000.0
         cerebro.broker.setcash(starting_cash)
-        
+
         # Add leverage to the broker
-        cerebro.broker.setcommission(commission=0.0, leverage=CommissionSlippageLeverage.params.leverage)
-        
-        cerebro.addsizer(PortfolioSizer)#, allocation=allocation)
-        
-        # Set the commission, slippage, and leverage
         commission_info = CommissionSlippageLeverage()
+        cerebro.broker.setcommission(commission=0, leverage=commission_info.params.leverage)
         cerebro.broker.addcommissioninfo(commission_info)
-        
+        cerebro.addsizer(PortfolioSizer)#, allocation=allocation)
+
         # Print out the starting conditions
         print(f"The following transactions show the backtesting results of {coin}:")
         print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
         print()
-        
+
         # Analyzer
         cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='mysharpe', timeframe=bt.TimeFrame.Days, compression=1)
         cerebro.addanalyzer(bt.analyzers.DrawDown, _name='draw_down')
@@ -155,12 +86,50 @@ def run_strategy():
         cerebro.addanalyzer(bt.analyzers.VWR, _name='vwr')  # Value at Risk
         cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')  # System Quality Number
         cerebro.addanalyzer(CommissionAnalyzer, _name='commission')
-        
+
         results = cerebro.run()
         strat = results[0]
-        
+
         # Print out the final result
         print('\nFinal Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+        # Performance metrics calculation
+        pyfoliozer = strat.analyzers.getbyname('pyfolio')
+        returns, positions, transactions, gross_lev = pyfoliozer.get_pf_items()
+
+        bmk_ticker = coin
+        metrics = calculate_performance_metrics(returns, bmk_ticker, startdate, enddate)
+                
+        print(f'The return series metrics are calculated between {startdate} and {enddate}')
+        print()
+        print(f'Performance Metrics for {coin}:')
+        print('----------------------------------------')
+        print('Cumulative Return:', round(metrics['cumulative_return'], 2))
+        print('Annual Return:', round(metrics['annual_return'], 2))
+        print('Sharpe Ratio:', round(metrics['sharpe_ratio'], 2))
+        print('Sortino Ratio:', round(metrics['sortino_ratio'], 2))
+        print('Skew:', round(metrics['skewness'], 2))
+        print('Kurtosis:', round(metrics['kurtosis'], 2))
+        print('Tail Ratio:', round(metrics['tail_ratio'], 2))
+        print('Daily Value at Risk (VaR):', f'{metrics['daily_var']:.2%}' if not np.isnan(metrics['daily_var']) else "NaN")
+        print('Maximum DrawDown:', round(metrics['max_drawdown'], 2), '%')
+        print('--------------------------------')
+        print()
+
+        print('Benchmark Performance Metrics:')
+        print('--------------------------------')
+        print('Benchmark Cumulative Return:', round(metrics['benchmark_cumulative_return'], 2))
+        print('Benchmark Annual Return:', round(metrics['benchmark_annual_return'], 2))
+        print('Benchmark Sharpe Ratio:', round(metrics['benchmark_sharpe_ratio'], 2))
+        print('Benchmark Sortino Ratio:', round(metrics['benchmark_sortino_ratio'], 2))
+        print('Benchmark Skew:', round(metrics['benchmark_skewness'], 2))
+        print('Benchmark Kurtosis:', round(metrics['benchmark_kurtosis'], 2))
+        print('Benchmark Tail Ratio:', round(metrics['benchmark_tail_ratio'], 2))
+        print('Benchmark Daily Value at Risk (VaR):', f'{metrics['benchmark_daily_var']:.2%}' if not np.isnan(metrics['benchmark_daily_var']) else "NaN")
+        print('Benchmark Maximum DrawDown:', round(metrics['benchmark_max_drawdown'], 2), '%')
+        print('--------------------------------')
+        print()
+        
     else:
         print(f"Data for {coin} not found.")
 
