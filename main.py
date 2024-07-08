@@ -45,7 +45,7 @@ def run_strategy():
         lstm_X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
         lstm_X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
-        model_trainer = ModelTrainer(is_cv=False)
+        model_trainer = ModelTrainer(X_train, X_test, y_train, y_test)
         clean_df = model_trainer.train_models(X_train, X_test, y_train, y_test)
 
         output_path = os.path.join(os.path.dirname(__file__), 'models', 'results', 'clean_df.csv')
