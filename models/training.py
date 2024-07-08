@@ -17,7 +17,11 @@ from utils.data_preprocessor import preprocess_data
 is_cv = False
 
 class ModelTrainer:
-    def __init__(self, is_cv=False):
+    def __init__(self, X_train, X_test, y_train, y_test, is_cv=False):
+        self.X_train = X_train
+        self.X_test = X_test
+        self.y_train = y_train
+        self.y_test = y_test
         self.is_cv = is_cv
 
     def ANN_feed_forward():
