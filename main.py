@@ -4,7 +4,7 @@ import pytz
 from datetime import datetime
 import os
 
-from strategies.ml_signal import ML_Signal
+from strategies.base_strategy import *
 from models.training import *
 from analyzers.commission_analyzer import CommissionAnalyzer
 from utils.data_fetcher import fetch_and_save_data
